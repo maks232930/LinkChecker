@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+    volumes:
+      - ./:/app/
+    ports:
+      - "8000:8000"
+    command: >
+      sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    env_file:
+      - ./.env
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:15.1-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env-db
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5555:5432"
+
+  redis:
+    image: redis
+    hostname: redis
+    restart: always
+
+  worker:
+    build:
+      context: .
+    volumes:
+      - ./:/app/
+    env_file:
+      - ./.env
+    healthcheck:
+      test: [ "CMD-SHELL", "while ! nc -z web 8000; do sleep 1; done" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: celery -A LinkChecker worker --loglevel=info
+    links:
+      - redis
+    depends_on:
+      - redis
+      - db
+      - web
+
+  celery_beat:
+    build:
+      context: .
+    volumes:
+      - ./:/app/
+    env_file:
+      - ./.env
+    command: celery -A LinkChecker beat -l info
+    links:
+      - redis
+    depends_on:
+      worker:
+        condition: service_healthy
+
+  flower:
+    build:
+      context: .
+    command: celery -A LinkChecker flower
+    volumes:
+      - ./:/app/
+    env_file:
+      - ./.env
+    links:
+      - redis
+    depends_on:
+      - web
+      - redis
+    ports:
+      - '5557:5555'
+volumes:
+  postgres_data:
