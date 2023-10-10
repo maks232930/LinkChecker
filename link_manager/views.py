@@ -43,12 +43,11 @@ def deactivate_link(request, pk):
     """
         Приостановить или возобновить выполнение задачи LinkChecker для конкретной ссылки.
     """
-    if request.method == 'PATCH':
-        link = Link.objects.filter(id=pk).first()
-        if link:
-            link.is_active = not link.is_active
-            link.save()
+    link = Link.objects.filter(id=pk).first()
+    if link:
+        link.is_active = not link.is_active
+        link.save()
 
-            return Response({'detail': f'Ваша задача: {link.is_active}'}, status=status.HTTP_200_OK)
+        return Response({'detail': f'Ваша задача: {link.is_active}'}, status=status.HTTP_200_OK)
 
     return Response({'detail': 'Нет ссылки.'}, status=status.HTTP_404_NOT_FOUND)
