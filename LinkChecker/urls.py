@@ -19,7 +19,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 from rest_framework_swagger.views import get_swagger_view
 
-from link_manager.views import LinkViewSet
+from link_manager.views import LinkViewSet, deactivate_link
 
 schema_view = get_swagger_view(title='Link Checker API')
 router = DefaultRouter()
@@ -28,7 +28,7 @@ router.register('links', LinkViewSet, basename='links')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('swagger/', schema_view),
-
+    path('deactivate_link/<int:pk>/', deactivate_link, name='deactivate_link'),
 ]
 
 urlpatterns += router.urls
