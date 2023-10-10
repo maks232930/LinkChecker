@@ -23,7 +23,7 @@ from link_manager.views import LinkViewSet
 
 schema_view = get_swagger_view(title='Link Checker API')
 router = DefaultRouter()
-router.register('links/', LinkViewSet, basename='links')
+router.register('links', LinkViewSet, basename='links')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
