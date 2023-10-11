@@ -12,10 +12,12 @@ class Link(models.Model):
 
     name = models.CharField('Название', max_length=255)
     url = models.URLField('Ссылка')
-    condition_type = models.CharField('Условие', max_length=20, choices=CONDITION_CHOICES)
+    condition_type = models.CharField('Условие', max_length=20,
+                                      choices=CONDITION_CHOICES)
     text = models.TextField('Текст для поиска', null=True, blank=True)
     is_active = models.BooleanField(default=True, verbose_name='Работает')
-    timestamp = models.DateTimeField(blank=True, null=True, verbose_name='Время проверки')
+    timestamp = models.DateTimeField(blank=True, null=True,
+                                     verbose_name='Время проверки')
     is_result = models.BooleanField('Результат', blank=True, null=True)
 
     def __str__(self):

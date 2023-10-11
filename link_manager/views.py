@@ -10,14 +10,16 @@ from link_manager.serializers import LinkSerializers
 class LinkViewSet(viewsets.ModelViewSet):
     """
         API endpoint для управления объектами Link.
-        Позволяет выполнять операции CRUD (Create, Retrieve, Update, Delete) над объектами Link.
+        Позволяет выполнять операции CRUD (Create, Retrieve, Update, Delete)
+        над объектами Link.
     """
     queryset = Link.objects.all()
     serializer_class = LinkSerializers
 
     def perform_create(self, serializer):
         """
-            При создании новой ссылки автоматически создается задача LinkChecker для ее проверки.
+            При создании новой ссылки автоматически создается задача
+            LinkChecker для ее проверки.
         """
         existing_task = PeriodicTask.objects.filter(name="LinkChecker").first()
 
@@ -41,13 +43,16 @@ class LinkViewSet(viewsets.ModelViewSet):
 @api_view(['PATCH'])
 def deactivate_link(request, pk):
     """
-        Приостановить или возобновить выполнение задачи LinkChecker для конкретной ссылки.
+        Приостановить или возобновить выполнение задачи LinkChecker для
+        конкретной ссылки.
     """
     link = Link.objects.filter(id=pk).first()
     if link:
         link.is_active = not link.is_active
         link.save()
 
-        return Response({'detail': f'Ваша задача: {link.is_active}'}, status=status.HTTP_200_OK)
+        return Response({'detail': f'Ваша задача: {link.is_active}'},
+                        status=status.HTTP_200_OK)
 
-    return Response({'detail': 'Нет ссылки.'}, status=status.HTTP_404_NOT_FOUND)
+    return Response({'detail': 'Нет ссылки.'},
+                    status=status.HTTP_404_NOT_FOUND)
